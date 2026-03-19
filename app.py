@@ -1,64 +1,66 @@
 import streamlit as st
 import pandas as pd
-import urllib.parse
+from datetime import datetime
 
 # --- UI CONFIG ---
-st.set_page_config(page_title="SmartFetcher | Universal Hub", layout="wide", page_icon="🌐")
+st.set_page_config(page_title="SmartFetcher | Global Aggregator", layout="wide")
 
-# Professional Lead Analyst Styling
+# Custom Styling for the Tables
 st.markdown("""
     <style>
-    .main { background-color: #ffffff; }
-    .stButton>button { width: 100%; background-color: #004a99; color: white; height: 3.5em; font-weight: bold; border-radius: 8px; }
-    .stDataFrame { border: 1px solid #e6e9ef; border-radius: 8px; }
+    .portal-header { background-color: #f1f3f4; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; }
+    .job-count { color: #1a73e8; font-size: 1.2em; }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🌐 SmartFetcher Universal")
-st.write("#### Global Opportunity Aggregator")
+st.title("🌐 SmartFetcher Universal Aggregator")
 
-# --- SEARCH ENGINE ---
-col1, col2 = st.columns([3, 1])
+# --- USER INPUT ---
+user_query = st.text_input("Enter Search Criteria:", placeholder="e.g. Oracle SOX Auditor, Solar Energy Consultant...")
 
-with col1:
-    user_query = st.text_input("Search for any Role, Skill, or Project:", placeholder="e.g. Oracle Financials, Solar Engineer, IGCSE Tutor...")
-with col2:
-    platform = st.selectbox("Source Platform", ["All Platforms", "Upwork", "LinkedIn", "Indeed", "Freelancer"])
-
-# --- DIRECT LINK GENERATOR ---
-def get_universal_links(query, site):
-    encoded = urllib.parse.quote(query)
-    
-    sources = [
-        {"Source": "Upwork", "Target": f"{query} Gigs", "Link": f"https://www.upwork.com/nx/search/jobs/?q={encoded}&sort=recency"},
-        {"Source": "LinkedIn", "Target": f"{query} Roles", "Link": f"https://www.linkedin.com/jobs/search/?keywords={encoded}"},
-        {"Source": "Indeed", "Target": f"Remote {query} Jobs", "Link": f"https://www.indeed.com/jobs?q={encoded}&l=Remote"},
-        {"Source": "Freelancer", "Target": f"{query} Projects", "Link": f"https://www.freelancer.com/jobs/?keyword={encoded}"}
+# --- DATA ENGINE (PHASE 3: MOCK -> LIVE) ---
+def fetch_portal_data(portal_name, query):
+    # This represents the structure we will get from the APIs
+    # Columns: Name of JOB, Name of Company, Job details, Posted On, Part Time/Full Time
+    mock_data = [
+        {"Name of JOB": f"Senior {query}", "Name of Company": "Global Corp", "Job details": "Expert level required...", "Posted on": "2026-03-18", "Type": "Full Time", "Link": "#"},
+        {"Name of JOB": f"Junior {query}", "Name of Company": "Startup Inc", "Job details": "Great for early career...", "Posted on": "2026-03-19", "Type": "Part Time", "Link": "#"},
+        {"Name of JOB": f"{query} Consultant", "Name of Company": "Advisory LLP", "Job details": "Remote project based...", "Posted on": "2026-03-17", "Type": "Contract", "Link": "#"},
+        {"Name of JOB": f"Lead {query}", "Name of Company": "Tech Giants", "Job details": "Leading a team of 5...", "Posted on": "2026-03-19", "Type": "Full Time", "Link": "#"},
+        {"Name of JOB": f"Specialist: {query}", "Name of Company": "Boutique Firm", "Job details": "Specific niche focus...", "Posted on": "2026-03-15", "Type": "Full Time", "Link": "#"},
     ]
-    
-    if site == "All Platforms":
-        return pd.DataFrame(sources)
-    return pd.DataFrame([s for s in sources if s["Source"] == site])
+    return 120, pd.DataFrame(mock_data) # Returns (Count, Top 5 DF)
 
 # --- EXECUTION ---
-if st.button("🚀 FETCH DIRECT OPPORTUNITIES"):
+if st.button("🚀 EXECUTE GLOBAL SEARCH"):
     if user_query:
-        with st.spinner(f"Routing to global nodes for '{user_query}'..."):
-            results = get_universal_links(user_query, platform)
+        portals = ["Upwork", "LinkedIn", "Indeed", "Freelancer"]
+        
+        for portal in portals:
+            count, df = fetch_portal_data(portal, user_query)
             
-            # Display using LinkColumn for one-click access
+            # --- PORTAL HEADER & COUNT ---
+            st.markdown(f"""
+                <div class="portal-header">
+                    {portal} Portal | <span class="job-count">{count}+ Jobs Found</span>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # --- TOP 5 TABLE ---
+            st.write(f"Showing Top 5 results for: **{user_query}**")
             st.data_editor(
-                results,
+                df,
                 column_config={
-                    "Link": st.column_config.LinkColumn("Action", display_text="Open Opportunity ↗️"),
-                    "Source": st.column_config.TextColumn("Platform", width="medium"),
+                    "Link": st.column_config.LinkColumn("Apply", display_text="View ↗️"),
+                    "Posted on": st.column_config.DateColumn("Date"),
+                    "Job details": st.column_config.TextColumn("Description", width="large"),
                 },
                 use_container_width=True,
                 hide_index=True,
+                key=f"table_{portal}"
             )
-            st.toast(f"Links generated for {user_query}")
+            st.divider()
     else:
-        st.error("Please enter a search term.")
+        st.warning("Please enter a search criteria to start the fetch.")
 
-st.divider()
-st.caption("SmartFetcher Project | Phase 2 Deployment Active")
+st.caption("© 2026 SmartFetcher | Phase 3 UI Deployment")
