@@ -13,7 +13,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🌐 SmartFetcher Universal Aggregator")
+st.title("🌐 SmartFetcher Universal Aggregator-2")
 
 # --- USER INPUT ---
 user_query = st.text_input("Enter Search Criteria:", placeholder="e.g. Oracle SOX Auditor, Solar Energy Consultant...")
