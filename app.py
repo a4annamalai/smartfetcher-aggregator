@@ -48,6 +48,13 @@ if st.button("🚀 EXECUTE GLOBAL SEARCH"):
             
             # --- TOP 5 TABLE ---
             st.write(f"Showing Top 5 results for: **{user_query}**")
+            
+            # Convert all object/complex columns to strings to prevent type incompatibility
+            df = df.copy()
+            for col in df.columns:
+                if df[col].apply(lambda x: isinstance(x, (list, dict))).any():
+                    df[col] = df[col].astype(str)
+        
             st.data_editor(
                 df,
                 column_config={
